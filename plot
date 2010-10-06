@@ -1,4 +1,25 @@
+binwidth=16384
+bin(x,width)=width*floor(x/width)
+
 set terminal png size 1920, 1200
+
+system "cut -f8,14 memlog | awk '{print $1+$2;}' | sort -n > mem.histo"
+system "./accum.py < mem.histo > mem.accum"
+set output "mem-histo.png"
+set y2tics
+
+avg=`./avg.py < mem.histo`
+stdev=`./stdev.py < mem.histo`
+
+set arrow from avg, graph 0 to avg, graph 1 lw 2 nohead
+set arrow from (avg-stdev), graph 0 to (avg-stdev), graph 1 nohead
+set arrow from (avg+stdev), graph 0 to (avg+stdev), graph 1 nohead
+set arrow from (avg-2*stdev), graph 0 to (avg-2*stdev), graph 1 nohead
+set arrow from (avg+2*stdev), graph 0 to (avg+2*stdev), graph 1 nohead
+
+plot "mem.histo" using (bin($1,binwidth)):(1.0) smooth freq title "Histogram" with boxes, \
+     "mem.accum" using 1:2 smooth bezier axis x1y2 title "Cumulative Count" with lines
+
 set xdata time
 set timefmt "%Y-%m-%dT%H:%M:%S"
 
