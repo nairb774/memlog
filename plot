@@ -39,3 +39,19 @@ plot "mem.data" using 1:2 title "available" with lines, \
 set output "load-mem.png"
 plot "load.data" using 1:4 title "15 min avg" with lines, \
      "mem.data" using 1:($3+$5) axis x1y2 title "used" with lines
+
+system "awk 'NF >= 27 {print $0;}' memlog | cut -f1,2,18-21 > load-io.data"
+
+set output "load-io.png"
+plot "load-io.data" using 1:2 title "1 min avg" with lines, \
+     "load-io.data" using 1:3 axis x1y2 title "si" with lines, \
+     "load-io.data" using 1:4 axis x1y2 title "s0" with lines, \
+     "load-io.data" using 1:5 axis x1y2 title "bi" with lines, \
+     "load-io.data" using 1:6 axis x1y2 title "b0" with lines
+
+system "awk 'NF >= 27 {print $0;}' memlog | cut -f1,2,24,27 > load-cpu.data"
+
+set output "load-cpu.png"
+plot "load-cpu.data" using 1:2 title "1 min avg" with lines, \
+     "load-cpu.data" using 1:3 axis x1y2 title "user" with lines, \
+     "load-cpu.data" using 1:4 axis x1y2 title "wait" with lines
